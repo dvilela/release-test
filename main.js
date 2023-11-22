@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const { app, BrowserWindow, utilityProcess } = require('electron');
 
+if (require('electron-squirrel-startup')) app.quit();
+
 let mainWindow;
 let workerProcess;
 
