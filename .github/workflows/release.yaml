@@ -21,9 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Upgrade node-gyp
-        run: npm install --save-dev node-gyp@10
-
       - name: Build Electron app
         run: npm run make
 
