@@ -4,26 +4,16 @@ on:
   push:
     tags:
       - v*
+  workflow_run:
+    workflows: ["Build Electron App"]
+    types:
+      - completed
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Electron app
-        run: npm run make
-
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
