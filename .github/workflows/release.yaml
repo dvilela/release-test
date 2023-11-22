@@ -1,36 +1,92 @@
-name: Electron Forge Release
+name: Release
 
 on:
-  workflow_run:
-    workflows: ["Build Electron App"]
-    types:
-      - completed
+  push:
+    tags:
+      - v*
 
 jobs:
-  release:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      run: npm install
+    - name: Build for Windows
+      run: npm run make -- --platform=win32
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifacts-windows
+        path: out/make/**/*
+
+  build-linux:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      run: npm install
+    - name: Build for Linux
+      run: npm run make -- --platform=linux
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifacts-linux
+        path: out/make/**/*
 
-      - name: Download Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifacts-windows
-          path: out/make/windows
-      - name: Download Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifacts-linux
-          path: out/make/linux
-      - name: Download Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifacts-macos
-          path: out/make/macos
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      run: npm install
+    - name: Build for macOS
+      run: npm run make -- --platform=darwin
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifacts-macos
+        path: out/make/**/*
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            out/make/**/*
+  release:
+      needs: [build-windows, build-linux, build-macos]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Download Artifacts
+          uses: actions/download-artifact@v2
+          with:
+            name: build-artifacts-windows
+            path: out/make/windows
+
+        - name: Download Artifacts
+          uses: actions/download-artifact@v2
+          with:
+            name: build-artifacts-linux
+            path: out/make/linux
+
+        - name: Download Artifacts
+          uses: actions/download-artifact@v2
+          with:
+            name: build-artifacts-macos
+            path: out/make/macos
+
+        - name: Release
+          uses: softprops/action-gh-release@v1
+          with:
+            files: |
+              out/make/**/*
