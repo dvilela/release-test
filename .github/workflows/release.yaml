@@ -24,18 +24,8 @@ jobs:
       - name: Build Electron app
         run: npm run make
 
-      - name: Create release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          draft: false
-          prerelease: false
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: dist
-          path: out/make
+          files: |
+            out/make/**/*
