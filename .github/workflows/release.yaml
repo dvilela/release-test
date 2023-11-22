@@ -2,8 +2,8 @@ name: Electron Forge Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - v*
 
 jobs:
   build:
